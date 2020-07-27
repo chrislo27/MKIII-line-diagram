@@ -11,6 +11,7 @@
 // - POWER     -> Shuts off display and enters "sleep mode". Press POWER again to wake.
 // - 0         -> Mode 0.
 // - 1         -> Mode 1.
+// - 2         -> Mode 2.
 
 // WIRING BEST PRACTICES for most reliable operation:
 // - Add 1000 uF CAPACITOR between LED strip's + and - connections.
@@ -56,6 +57,9 @@ void renderWithMode() {
     case 1:
       mode1_render(&diagram);
       break;
+    case 2:
+      mode2_render(&diagram);
+      break;
     default:
       digitalWrite(LED_BUILTIN, LOW);
       delay(50);
@@ -67,16 +71,20 @@ void renderWithMode() {
 
 // Call to update the LEDs in a NON-ANIMATING way, which should be uniquely representive of each mode.
 // For some modes which are already static, their default render function may be called instead.
+// This function clears the strip first.
 void renderStaticWithMode() {
+  strip.clear();
+  bool didDefault = false;
   switch(Rendering.currentMode) {
     case 0:
       mode0_renderStatic(&diagram);
       break;
-    case 1:
-      mode1_render(&diagram);
+    default:
+      renderWithMode();
+      didDefault = true;
       break;
   }
-  strip.show();
+  if (!didDefault) strip.show();
 }
 
 void handleIRMode(unsigned long value);
@@ -120,6 +128,7 @@ void loop() {
             // Switch to IR mode
             IRMode.clicks = 2;
             animate(1);
+            renderStaticWithMode();
           } else { // Timed out for 2 clicks, reset to 1 click
             IRMode.clicks = 1;
             IRMode.timeSinceFirstClick = millis();
@@ -159,13 +168,23 @@ void handleIRMode(unsigned long value) {
       irrecv.resume();
       digitalWrite(LED_BUILTIN, HIGH);
       animate(1);
+      renderStaticWithMode();
       break;
     case KEY_0:
       Rendering.currentMode = 0;
       renderStaticWithMode();
       break;
-    case KEY_1:
-      Rendering.currentMode = 1;
+    case KEY_1: {
+      if (Rendering.currentMode != 1) {
+        Rendering.currentMode = 1;
+      } else {
+        if (++mode1.submode >= 2) mode1.submode = 0;
+      }
+      renderStaticWithMode();
+      break;
+    }
+    case KEY_2:
+      Rendering.currentMode = 2;
       renderStaticWithMode();
       break;
   }
