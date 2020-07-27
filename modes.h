@@ -9,7 +9,7 @@
 #include <Adafruit_NeoPixel.h>
 #include "diagram.h"
 
-#define NUM_RENDER_MODES 2
+#define NUM_RENDER_MODES 4
 
 typedef struct Mode0 {
   unsigned long lastTime = 99999;
@@ -36,6 +36,15 @@ typedef struct Mode2 {
 extern Mode2 mode2;
 
 void mode2_render(LineDiagram *diagram);
+
+
+typedef struct Mode3 {
+  uint8_t order[NUM_STATIONS];
+} Mode3;
+extern Mode3 mode3;
+
+void mode3_render(LineDiagram *diagram);
+void mode3_renderStatic(LineDiagram *diagram);
 
 
 #endif

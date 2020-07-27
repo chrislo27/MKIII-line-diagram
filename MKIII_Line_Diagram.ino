@@ -10,8 +10,8 @@
 // - FUNC/STOP -> Exits IR mode.
 // - POWER     -> Shuts off display and enters "sleep mode". Press POWER again to wake.
 // - 0         -> Mode 0.
-// - 1         -> Mode 1.
-// - 2         -> Mode 2.
+// - 1         -> Mode 1. Press again to cycle through submodes.
+// - 2         -> Mode 2. Press again to cycle through submodes.
 
 // WIRING BEST PRACTICES for most reliable operation:
 // - Add 1000 uF CAPACITOR between LED strip's + and - connections.
@@ -60,6 +60,9 @@ void renderWithMode() {
     case 2:
       mode2_render(&diagram);
       break;
+    case 3:
+      mode3_render(&diagram);
+      break;
     default:
       digitalWrite(LED_BUILTIN, LOW);
       delay(50);
@@ -78,6 +81,9 @@ void renderStaticWithMode() {
   switch(Rendering.currentMode) {
     case 0:
       mode0_renderStatic(&diagram);
+      break;
+    case 3:
+      mode3_renderStatic(&diagram);
       break;
     default:
       renderWithMode();
@@ -189,6 +195,10 @@ void handleIRMode(unsigned long value) {
       } else {
         if (++mode2.submode >= 2) mode2.submode = 0;
       }
+      renderStaticWithMode();
+      break;
+    case KEY_3:
+      Rendering.currentMode = 3;
       renderStaticWithMode();
       break;
   }

@@ -82,7 +82,7 @@ void mode2_render(LineDiagram *diagram) {
   Adafruit_NeoPixel *strip = diagram->strip;
   const uint16_t num = strip->numPixels();
   strip->clear();
-  switch (mode1.submode) {
+  switch (mode2.submode) {
     case 0: {
       const uint16_t cycle = map(millis() % 5000, 0, 5000, 0, 65535);
       for (int i = 0; i < num; i++) {
@@ -108,4 +108,26 @@ void mode2_render(LineDiagram *diagram) {
       break;
     }
   }
+}
+
+
+// -------------------------- Mode 3 --------------------------
+// Line diagram. Set start point and end point stations and
+// a path will be drawn.
+
+Mode3 mode3;
+
+void mode3_render(LineDiagram *diagram) {
+  
+}
+
+void mode3_renderStatic(LineDiagram *diagram) {
+  for (int i = STN_BURRARD; i <= STN_COLUMBIA; i++) {
+    diagram->set(i, c_stn_green);
+  }
+  diagram->set(STN_BRAID, c_stn_green);
+  diagram->set(STN_SAPPERTON, c_stn_green);
+  diagram->set(STN_PRODUCTION, c_stn_green);
+  diagram->set(STN_LOUGHEED, c_stn_green);
+  diagram->set(STN_WATERFRONT, c_stn_red);
 }

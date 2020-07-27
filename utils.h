@@ -5,12 +5,14 @@
 
 #include <Adafruit_NeoPixel.h>
 
-inline uint32_t rgb32(uint8_t r, uint8_t g, uint8_t b) {
-  return Adafruit_NeoPixel::Color(r, g, b);
-}
+#define rgb32(r, g, b) (((uint32_t) (r) << 16) | ((uint32_t) (g) <<  8) | (b))
+
 inline uint32_t gamma32(uint32_t x) {
   return Adafruit_NeoPixel::gamma32(x);
 }
+
+const uint32_t c_stn_green = rgb32(0, 127, 0);
+const uint32_t c_stn_red = rgb32(127, 0, 0);
 
 const uint32_t c_expo = rgb32(30, 89, 174);
 const uint32_t c_mill = rgb32(252, 208, 6);
