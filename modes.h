@@ -27,6 +27,14 @@ extern Mode1 mode1;
 
 void mode1_render(LineDiagram *diagram);
 
+
+typedef struct Mode2 {
+  uint8_t submode = 0;
+  uint32_t strobe = 0;
+  uint8_t lastCycle = 0;
+} Mode2;
+extern Mode2 mode2;
+
 void mode2_render(LineDiagram *diagram);
 
 

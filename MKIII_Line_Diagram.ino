@@ -184,7 +184,11 @@ void handleIRMode(unsigned long value) {
       break;
     }
     case KEY_2:
-      Rendering.currentMode = 2;
+      if (Rendering.currentMode != 2) {
+        Rendering.currentMode = 2;
+      } else {
+        if (++mode2.submode >= 2) mode2.submode = 0;
+      }
       renderStaticWithMode();
       break;
   }

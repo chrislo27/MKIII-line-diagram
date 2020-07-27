@@ -51,11 +51,12 @@ void mode0_renderStatic(LineDiagram *diagram) {
 Mode1 mode1;
 
 void mode1_render(LineDiagram *diagram) {
-  diagram->strip->clear();
+  Adafruit_NeoPixel *strip = diagram->strip;
+  strip->clear();
   switch (mode1.submode) {
     case 0: {
       uint32_t color = rgb32(127, 127, 127);
-      for (int i = 0; i < diagram->strip->numPixels(); i++) {
+      for (int i = 0; i < strip->numPixels(); i++) {
         diagram->set(i, color, false);
       }
       break;
@@ -71,14 +72,40 @@ void mode1_render(LineDiagram *diagram) {
 
 
 // -------------------------- Mode 2 --------------------------
-// Colour test. Cycles through the rainbow slowly for all LEDs.
+// Colour test.
+// Submode 1 - Cycles through the rainbow slowly for all LEDs.
+// Submode 2 - Patterned strobing ("rave").
+
+Mode2 mode2;
 
 void mode2_render(LineDiagram *diagram) {
   Adafruit_NeoPixel *strip = diagram->strip;
   const uint16_t num = strip->numPixels();
-  const uint16_t cycle = map(millis() % 5000, 0, 5000, 0, 65535);
   strip->clear();
-  for (int i = 0; i < num; i++) {
-    diagram->set(i, strip->ColorHSV(65536 / num * (num - i - 1) + cycle));
+  switch (mode1.submode) {
+    case 0: {
+      const uint16_t cycle = map(millis() % 5000, 0, 5000, 0, 65535);
+      for (int i = 0; i < num; i++) {
+        diagram->set(i, strip->ColorHSV(65536 / num * (num - i - 1) + cycle));
+      }
+      break;
+    }
+    case 1: {
+      uint8_t cycle = (millis() / 250 % 32);
+      if (cycle < 16) cycle /= 4;
+      else if (cycle >= 16 && cycle < 24) cycle = (cycle - 16) / 2;
+      else cycle = cycle - 24;
+      if (cycle != mode2.lastCycle) {
+        mode2.lastCycle = cycle;
+        mode2.strobe = strip->ColorHSV(65536 / 16 * random(16));
+      }
+      const uint16_t num = strip->numPixels();
+      strip->clear();
+      const uint32_t strobe = mode2.strobe;
+      for (int i = 0; i < num; i++) {
+        diagram->set(i, strobe);
+      }
+      break;
+    }
   }
 }
