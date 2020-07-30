@@ -160,3 +160,36 @@ void mode3_renderStatic(LineDiagram *diagram) {
   diagram->set(STN_LOUGHEED, c_stn_green);
   diagram->set(STN_WATERFRONT, c_stn_red);
 }
+
+
+// -------------------------- Mode 4 --------------------------
+// Custom line diagram. Set your own static path.
+
+Mode4 mode4;
+
+void mode4_render(LineDiagram *diagram) {
+  mode4_render(diagram, false);
+}
+
+void mode4_render(LineDiagram *diagram, bool editMode) {
+  diagram->strip->clear();
+  StationPath *route = &mode4.route;
+  if (route->size == 0) {
+    // Path is invalid so highlight orange/purple
+    diagram->set(mode4.start, c_stn_orange);
+    diagram->set(mode4.end, c_stn_purple);
+  } else {
+    for (int i = 0; i < route->size; i++) {
+      diagram->set(route->path[i], i == 0 ? c_stn_red : (!editMode || i == route->size - 1 ? c_stn_green : c_stn_yellow));
+    }
+  }
+}
+
+void mode4_renderStatic(LineDiagram *diagram) {
+  for (int i = STN_LAFARGE; i <= STN_VCC_CLARK; i++) {
+    diagram->set(i, c_stn_green);
+  }
+  diagram->set(STN_BRAID, 0);
+  diagram->set(STN_SAPPERTON, 0);
+  diagram->set(STN_VCC_CLARK, c_stn_red);
+}

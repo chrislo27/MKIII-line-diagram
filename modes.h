@@ -10,7 +10,7 @@
 #include "diagram.h"
 #include "stations.h"
 
-#define NUM_RENDER_MODES 4
+#define NUM_RENDER_MODES 5
 
 typedef struct Mode0 {
   unsigned long lastTime = 99999;
@@ -49,6 +49,18 @@ extern Mode3 mode3;
 
 void mode3_render(LineDiagram *diagram);
 void mode3_renderStatic(LineDiagram *diagram);
+
+
+typedef struct Mode4 {
+  StationPath route;
+  uint8_t start = STN_VCC_CLARK;
+  uint8_t end = STN_LAFARGE;
+} Mode4;
+extern Mode4 mode4;
+
+void mode4_render(LineDiagram *diagram);
+void mode4_render(LineDiagram *diagram, bool editMode);
+void mode4_renderStatic(LineDiagram *diagram);
 
 
 #endif

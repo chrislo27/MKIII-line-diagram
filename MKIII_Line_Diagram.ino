@@ -12,13 +12,14 @@
 // - 0         -> Mode 0.
 // - 1         -> Mode 1. Press again to cycle through submodes.
 // - 2         -> Mode 2. Press again to cycle through submodes.
-
-// WIRING BEST PRACTICES for most reliable operation:
-// - Add 1000 uF CAPACITOR between LED strip's + and - connections.
-// - MINIMIZE WIRING LENGTH between microcontroller board and first pixel.
-// - LED strip's DATA-IN should pass through a 300-500 OHM RESISTOR.
-// - AVOID connecting LEDs on a LIVE CIRCUIT. If you must, ALWAYS
-//   connect GROUND (-) first, then +, then data.
+// - 3         -> Mode 3.
+// - 4         -> Mode 4.
+// While in Mode 4:
+// - ST/REPT   -> Begin editing/exit editing.
+// While in Mode 4, editing mode:
+// - FFWD      -> Move endpoint by +1.
+// - REWIND    -> Move endpoint by -1.
+// - EQ        -> Swap the two slot positions.
 
 #include <Adafruit_NeoPixel.h>
 #include <Entropy.h>
@@ -35,6 +36,8 @@ decode_results irresults;
 
 #define LED_PIN 6
 Adafruit_NeoPixel strip(NUM_STATIONS, LED_PIN, NEO_GRB + NEO_KHZ800);
+
+#define FRAME_DELAY 20
 
 LineDiagram diagram(&strip);
 
@@ -63,6 +66,9 @@ void renderWithMode() {
     case 3:
       mode3_render(&diagram);
       break;
+    case 4:
+      mode4_render(&diagram);
+      break;
     default:
       digitalWrite(LED_BUILTIN, LOW);
       delay(50);
@@ -87,6 +93,9 @@ void renderStaticWithMode() {
       break;
     case 3:
       mode3_renderStatic(&diagram);
+      break;
+    case 4:
+      mode4_renderStatic(&diagram);
       break;
     default:
       renderWithMode();
@@ -121,23 +130,25 @@ void setup() {
   strip.setBrightness(64); // Set BRIGHTNESS (max = 255)
   randomSeed(Entropy.random());
 
-  StationPath result;
-  Serial.println(F("\nStation pathfind ordered test:"));
-  Serial.print(F("Broadway to 22nd:\n  "));
-  pathfind(&result, STN_BROADWAY, STN_22ND_STREET);
-  
-  for (int i = 0; i < result.size; i++) {
-    Serial.print(STN_NAMES[result.path[i]]);
-    Serial.print(F(", \n  "));
-  }
-  Serial.print(F("Done. Size: "));
-  Serial.println(result.size);
+  pathfind(&mode4.route, mode4.start, mode4.end);
+
+//  StationPath result;
+//  Serial.println(F("\nStation pathfind ordered test:"));
+//  Serial.print(F("Broadway to 22nd:\n  "));
+//  pathfind(&result, STN_BROADWAY, STN_22ND_STREET);
+//  
+//  for (int i = 0; i < result.size; i++) {
+//    Serial.print(STN_NAMES[result.path[i]]);
+//    Serial.print(F(", \n  "));
+//  }
+//  Serial.print(F("Done. Size: "));
+//  Serial.println(result.size);
 }
 
 void loop() {
   if (IRMode.clicks < 2) {
     renderWithMode();
-    delay(20); // 50 fps
+    delay(FRAME_DELAY); // 50 fps
     if (irrecv.decode(&irresults)) {
       if (IRMode.clickTimer == 0) {
         IRMode.clickTimer = 10;
@@ -161,13 +172,15 @@ void loop() {
       if (IRMode.clickTimer > 0) IRMode.clickTimer--;
     }
   } else {
-    delay(20);
+    delay(FRAME_DELAY);
     if (irrecv.decode(&irresults)) {
       handleIRMode(irresults.value);
       irrecv.resume();
     }
   }
 }
+
+void mode4_editMode();
 
 void handleIRMode(unsigned long value) {
   switch (irresults.value) {
@@ -216,6 +229,59 @@ void handleIRMode(unsigned long value) {
       Rendering.currentMode = 3;
       renderStaticWithMode();
       break;
+    case KEY_4:
+      Rendering.currentMode = 4;
+      renderStaticWithMode();
+      break;
+    case KEY_ST_REPT: {
+      if (Rendering.currentMode == 4) {
+        mode4_editMode();
+      }
+      break;
+    }
+  }
+}
+
+void mode4_editMode() {
+  mode4_render(&diagram, true);
+  strip.show();
+  irrecv.resume();
+  while (true) {
+    delay(FRAME_DELAY);
+    if (irrecv.decode(&irresults)) {
+      unsigned long value = irresults.value;
+      switch (value) {
+        case KEY_ST_REPT: {
+          irrecv.resume();
+          renderStaticWithMode();
+          return;
+        }
+        case KEY_EQ: {
+          StationPath *route = &mode4.route;
+          uint8_t first = mode4.start;
+          uint8_t last = mode4.end;
+          mode4.start = last;
+          mode4.end = first;
+          pathfind(&mode4.route, last, first);
+          mode4_render(&diagram, true);
+          strip.show();
+          break;
+        }
+        case KEY_REWIND:
+        case KEY_FAST_FORWARD: {
+          int8_t last = (int8_t) mode4.end;
+          last += value == KEY_REWIND ? -1 : 1;
+          if (last < 0) last = NUM_STATIONS - 1;
+          if (last >= NUM_STATIONS) last = 0;
+          mode4.end = (uint8_t) last;
+          pathfind(&mode4.route, mode4.start, mode4.end);
+          mode4_render(&diagram, true);
+          strip.show();
+          break;
+        }
+      }
+      irrecv.resume();
+    }
   }
 }
 
