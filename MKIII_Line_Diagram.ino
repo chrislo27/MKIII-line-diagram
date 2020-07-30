@@ -117,6 +117,18 @@ void setup() {
   strip.show();            // Turn OFF all pixels
   strip.setBrightness(64); // Set BRIGHTNESS (max = 255)
   randomSeed(Entropy.random());
+
+//  StationPath result;
+//  Serial.println(F("\nStation pathfind ordered test:"));
+//  Serial.print(F("Braid to Sapperton:\n  "));
+//  pathfind(&result, STN_BRAID, STN_SAPPERTON);
+//  
+//  for (int i = 0; i < result.size; i++) {
+//    Serial.print(STN_NAMES[result.path[i]]);
+//    Serial.print(F(", \n  "));
+//  }
+//  Serial.print(F("Done. Size: "));
+//  Serial.println(result.size);
 }
 
 void loop() {

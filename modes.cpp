@@ -112,13 +112,35 @@ void mode2_render(LineDiagram *diagram) {
 
 
 // -------------------------- Mode 3 --------------------------
-// Line diagram. Set start point and end point stations and
-// a path will be drawn.
+// Random line diagram. A random path will be picked
+// and "travelled" to.
 
 Mode3 mode3;
 
 void mode3_render(LineDiagram *diagram) {
-  
+  StationPath *route = &(mode3.route);
+  if (route->size == 0) {
+    // Regenerate the route
+    uint8_t first, second;
+    while (route->size == 0) {
+      first = random(0, NUM_STATIONS);
+      do {
+        second = random(0, NUM_STATIONS);
+      } while (second == first);
+      pathfind(route, first, second);
+    }
+    mode3.originalSize = route->size;
+    mode3.lastTime = millis();
+  }
+  // Display path
+  diagram->strip->clear();
+  for (int i = 0; i < route->size; i++) {
+    diagram->set(route->path[i], i == 0 ? c_stn_red : c_stn_green);
+  }
+  if (millis() - mode3.lastTime > 1000) {
+    mode3.lastTime = millis();
+    route->size--;
+  }
 }
 
 void mode3_renderStatic(LineDiagram *diagram) {

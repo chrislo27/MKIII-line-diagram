@@ -47,6 +47,15 @@
 #define STN_COMMERCIAL        37
 #define STN_VCC_CLARK         38
 
+
+typedef struct StationPath {
+  uint8_t size = 0;
+  int8_t path[NUM_STATIONS];
+} StationPath;
+
+// Modifies a station path struct of stations from start to end.
+StationPath* pathfind(StationPath* path, uint8_t from, uint8_t to);
+
 // Below: Defines the LED orderings.
 // The data order is the actual data order of LEDs for each station from head to tail.
 // This is also the same numeric order of the stations as defined in stations.h.
@@ -134,6 +143,48 @@ const uint8_t STATION_X_ORDER[NUM_STATIONS] = {
   STN_KING_GEORGE,
   STN_LINCOLN,
   STN_LAFARGE
+};
+
+const char* const STN_NAMES[NUM_STATIONS] = {
+  "Waterfront",
+  "Burrard",
+  "Granville",
+  "Stadium-Chinatown",
+  "Main Street-Science World",
+  "Broadway",
+  "Nanaimo",
+  "29th Avenue",
+  "Joyce-Collingwood",
+  "Patterson",
+  "Metrotown",
+  "Royal Oak",
+  "Edmonds",
+  "22nd Street",
+  "New Westminster",
+  "Columbia",
+  "Scott Road",
+  "Gateway",
+  "Surrey Central",
+  "King George",
+  "Lafarge Lake-Douglas",
+  "Lincoln",
+  "Coquitlam Central",
+  "Inlet Centre",
+  "Moody Centre",
+  "Burquitlam",
+  "Braid",
+  "Sapperton",
+  "Lougheed Town Centre",
+  "Production Way-University",
+  "Lake City Way",
+  "Sperling-Burnaby Lake",
+  "Holdom",
+  "Brentwood Town Centre",
+  "Gilmore",
+  "Rupert",
+  "Renfrew",
+  "Commercial",
+  "VCC-Clark"
 };
 
 #endif

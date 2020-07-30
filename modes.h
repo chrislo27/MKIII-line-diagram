@@ -8,6 +8,7 @@
 
 #include <Adafruit_NeoPixel.h>
 #include "diagram.h"
+#include "stations.h"
 
 #define NUM_RENDER_MODES 4
 
@@ -39,7 +40,9 @@ void mode2_render(LineDiagram *diagram);
 
 
 typedef struct Mode3 {
-  uint8_t order[NUM_STATIONS];
+  StationPath route;
+  uint8_t originalSize = 0;
+  unsigned long lastTime = 0L;
 } Mode3;
 extern Mode3 mode3;
 
