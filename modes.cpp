@@ -84,14 +84,14 @@ void mode2_render(LineDiagram *diagram, unsigned long ms) {
   strip->clear();
   switch (mode2.submode) {
     case 0: {
-      const uint16_t cycle = map(ms) % 5000, 0, 5000, 0, 65535);
+      const uint16_t cycle = map(ms % 5000, 0, 5000, 0, 65535);
       for (int i = 0; i < num; i++) {
         diagram->set(i, strip->ColorHSV(65536 / num * (num - i - 1) + cycle));
       }
       break;
     }
     case 1: {
-      uint8_t cycle = (ms) / 250 % 32);
+      uint8_t cycle = (ms / 250 % 32);
       if (cycle < 16) cycle /= 4;
       else if (cycle >= 16 && cycle < 24) cycle = (cycle - 16) / 2;
       else cycle = cycle - 24;
