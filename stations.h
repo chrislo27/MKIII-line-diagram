@@ -50,7 +50,7 @@
 
 typedef struct StationPath {
   uint8_t size = 0;
-  int8_t path[NUM_STATIONS];
+  uint8_t path[NUM_STATIONS];
 } StationPath;
 
 // Modifies a station path struct of stations from start to end.
