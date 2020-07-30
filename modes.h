@@ -37,6 +37,7 @@ typedef struct Mode2 {
 extern Mode2 mode2;
 
 void mode2_render(LineDiagram *diagram);
+void mode2_renderStatic(LineDiagram *diagram);
 
 
 typedef struct Mode3 {

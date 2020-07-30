@@ -82,6 +82,9 @@ void renderStaticWithMode() {
     case 0:
       mode0_renderStatic(&diagram);
       break;
+    case 2:
+      mode2_renderStatic(&diagram);
+      break;
     case 3:
       mode3_renderStatic(&diagram);
       break;

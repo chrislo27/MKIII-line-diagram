@@ -78,20 +78,20 @@ void mode1_render(LineDiagram *diagram) {
 
 Mode2 mode2;
 
-void mode2_render(LineDiagram *diagram) {
+void mode2_render(LineDiagram *diagram, unsigned long ms) {
   Adafruit_NeoPixel *strip = diagram->strip;
   const uint16_t num = strip->numPixels();
   strip->clear();
   switch (mode2.submode) {
     case 0: {
-      const uint16_t cycle = map(millis() % 5000, 0, 5000, 0, 65535);
+      const uint16_t cycle = map(ms) % 5000, 0, 5000, 0, 65535);
       for (int i = 0; i < num; i++) {
         diagram->set(i, strip->ColorHSV(65536 / num * (num - i - 1) + cycle));
       }
       break;
     }
     case 1: {
-      uint8_t cycle = (millis() / 250 % 32);
+      uint8_t cycle = (ms) / 250 % 32);
       if (cycle < 16) cycle /= 4;
       else if (cycle >= 16 && cycle < 24) cycle = (cycle - 16) / 2;
       else cycle = cycle - 24;
@@ -108,6 +108,13 @@ void mode2_render(LineDiagram *diagram) {
       break;
     }
   }
+}
+void mode2_render(LineDiagram *diagram) {
+  mode2_render(diagram, millis());
+}
+
+void mode2_renderStatic(LineDiagram *diagram) {
+  mode2_render(diagram, 0);
 }
 
 
