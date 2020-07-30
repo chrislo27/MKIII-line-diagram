@@ -26,7 +26,7 @@ StationPath* pathfindDirectional(StationPath *path, uint8_t from, uint8_t to, in
       StationPath leftRight;
       memset(leftRight.path, 0, NUM_STATIONS);
       if (path->size < 2 || path->path[path->size - 2] != STN_SAPPERTON) pathfindDirectional(&leftRight, STN_SCOTT_ROAD, to, 1);
-      if (leftRight.size == 0) pathfindDirectional(&leftRight, STN_NEW_WESTMINSTER, to, -1);
+      if (leftRight.size == 0 && (path->size < 2 || path->path[path->size - 2] != STN_NEW_WESTMINSTER)) pathfindDirectional(&leftRight, STN_NEW_WESTMINSTER, to, -1);
       if (leftRight.size == 0 && path->size >= 2 && path->path[path->size - 2] == STN_SAPPERTON) {
         // Cannot backtrack onto itself. No path.
         path->size = 0;
@@ -78,7 +78,7 @@ StationPath* pathfindDirectional(StationPath *path, uint8_t from, uint8_t to, in
       StationPath leftRight;
       memset(leftRight.path, 0, NUM_STATIONS);
       if (path->size < 2 || path->path[path->size - 2] != STN_BRAID) pathfindDirectional(&leftRight, STN_BURQUITLAM, to, -1);
-      if (leftRight.size == 0) pathfindDirectional(&leftRight, STN_PRODUCTION, to, 1);
+      if (leftRight.size == 0 && (path->size < 2 || path->path[path->size - 2] != STN_PRODUCTION)) pathfindDirectional(&leftRight, STN_PRODUCTION, to, 1);
       if (leftRight.size == 0 && path->size >= 2 && path->path[path->size - 2] == STN_BRAID) {
         // Cannot backtrack onto itself. No path.
         path->size = 0;
