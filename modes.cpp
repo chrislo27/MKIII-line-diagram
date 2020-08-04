@@ -97,7 +97,7 @@ void mode2_render(LineDiagram *diagram, unsigned long ms) {
       else cycle = cycle - 24;
       if (cycle != mode2.lastCycle) {
         mode2.lastCycle = cycle;
-        mode2.strobe = strip->ColorHSV(65536 / 16 * random(16));
+        mode2.strobe = strip->ColorHSV(65536 / 48 * random(48));
       }
       const uint16_t num = strip->numPixels();
       strip->clear();
@@ -114,7 +114,7 @@ void mode2_render(LineDiagram *diagram) {
 }
 
 void mode2_renderStatic(LineDiagram *diagram) {
-  mode2_render(diagram, 0);
+  mode2_render(diagram, 500);
 }
 
 
@@ -144,7 +144,7 @@ void mode3_render(LineDiagram *diagram) {
   for (int i = 0; i < route->size; i++) {
     diagram->set(route->path[i], i == 0 ? c_stn_red : c_stn_green);
   }
-  if (millis() - mode3.lastTime > 1000) {
+  if (millis() - mode3.lastTime > 750) {
     mode3.lastTime = millis();
     route->size--;
   }

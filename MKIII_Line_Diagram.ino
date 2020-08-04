@@ -125,9 +125,9 @@ void setup() {
 //  tone(5, 1397);
 //  delay(900); noTone(5);
 
-  strip.begin();           // INITIALIZE strip object (REQUIRED)
-  strip.show();            // Turn OFF all pixels
-  strip.setBrightness(64); // Set BRIGHTNESS (max = 255)
+  strip.begin();            // INITIALIZE strip object (REQUIRED)
+  strip.show();             // Turn OFF all pixels
+  strip.setBrightness(70); // Set BRIGHTNESS (max = 255)
   randomSeed(Entropy.random());
 
   pathfind(&mode4.route, mode4.start, mode4.end);
