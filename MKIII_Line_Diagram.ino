@@ -9,17 +9,22 @@
 // In IR mode:
 // - FUNC/STOP -> Exits IR mode.
 // - POWER     -> Shuts off display and enters "sleep mode". Press POWER again to wake.
-// - 0         -> Mode 0.
-// - 1         -> Mode 1. Press again to cycle through submodes.
-// - 2         -> Mode 2. Press again to cycle through submodes.
-// - 3         -> Mode 3.
-// - 4         -> Mode 4.
+// - 0         -> Mode 0. Fading red.
+// - 1         -> Mode 1. Press again to cycle through submodes. Static rendering (white, coloured).
+// - 2         -> Mode 2. Press again to cycle through submodes. Colour test.
+// - 3         -> Mode 3. Random line diagram.
+// - 4         -> Mode 4. User-set line diagram.
+// - 5         -> Mode 5. Custom set colour.
 // While in Mode 4:
 // - ST/REPT   -> Begin editing/exit editing.
 // While in Mode 4, editing mode:
 // - FFWD      -> Move endpoint by +1.
 // - REWIND    -> Move endpoint by -1.
 // - EQ        -> Swap the two slot positions.
+// While in Mode 5:
+// - ST/REPT   -> Begin editing/exit editing.
+// While in Mode 5, editing mode:
+// - num key   -> Add a digit for the current value.
 
 #include <Adafruit_NeoPixel.h>
 #include <Entropy.h>
@@ -69,6 +74,9 @@ void renderWithMode() {
     case 4:
       mode4_render(&diagram);
       break;
+    case 5:
+      mode5_render(&diagram);
+      break;
     default:
       digitalWrite(LED_BUILTIN, LOW);
       delay(50);
@@ -96,6 +104,9 @@ void renderStaticWithMode() {
       break;
     case 4:
       mode4_renderStatic(&diagram);
+      break;
+    case 5:
+      mode5_renderStatic(&diagram);
       break;
     default:
       renderWithMode();
@@ -233,9 +244,15 @@ void handleIRMode(unsigned long value) {
       Rendering.currentMode = 4;
       renderStaticWithMode();
       break;
+    case KEY_5:
+      Rendering.currentMode = 5;
+      renderStaticWithMode();
+      break;
     case KEY_ST_REPT: {
       if (Rendering.currentMode == 4) {
         mode4_editMode();
+      } else if (Rendering.currentMode == 5) {
+        mode5_editMode();
       }
       break;
     }
@@ -281,6 +298,90 @@ void mode4_editMode() {
         }
       }
       irrecv.resume();
+    }
+  }
+}
+
+void mode5_bumpUp(uint8_t digit, uint16_t* rawValue) {
+  uint8_t steps = mode5.steps;
+  uint8_t substep = steps % 3;
+  
+  (*rawValue) *= 10;
+  (*rawValue) += digit % 10;
+  if ((*rawValue) > 255) (*rawValue) = 255;
+  if (steps / 3 == 0) {
+    mode5.red = (uint8_t) (*rawValue);
+  } else if (steps / 3 == 1) {
+    mode5.green = (uint8_t) (*rawValue);
+  } else if (steps / 3 == 2) {
+    mode5.blue = (uint8_t) (*rawValue);
+  }
+
+  if (substep == 2) (*rawValue) = 0;
+  mode5.steps++;
+  mode5_render(&diagram, true, false);
+  strip.show();
+}
+
+void mode5_editMode() {
+  uint8_t oldRed = mode5.red;
+  uint8_t oldGreen = mode5.green;
+  uint8_t oldBlue = mode5.blue;
+  mode5.steps = 0;
+  mode5_render(&diagram, true, false);
+  strip.show();
+  irrecv.resume();
+  uint16_t rawValue = 0;
+  while (true) {
+    delay(FRAME_DELAY);
+    if (irrecv.decode(&irresults)) {
+      unsigned long value = irresults.value;
+      switch (value) {
+        case KEY_ST_REPT: {
+          irrecv.resume();
+          mode5.red = oldRed;
+          mode5.green = oldGreen;
+          mode5.blue = oldBlue;
+          renderStaticWithMode();
+          return;
+        }
+        case KEY_0:
+          mode5_bumpUp(0, &rawValue);
+          break;
+        case KEY_1:
+          mode5_bumpUp(1, &rawValue);
+          break;
+        case KEY_2:
+          mode5_bumpUp(2, &rawValue);
+          break;
+        case KEY_3:
+          mode5_bumpUp(3, &rawValue);
+          break;
+        case KEY_4:
+          mode5_bumpUp(4, &rawValue);
+          break;
+        case KEY_5:
+          mode5_bumpUp(5, &rawValue);
+          break;
+        case KEY_6:
+          mode5_bumpUp(6, &rawValue);
+          break;
+        case KEY_7:
+          mode5_bumpUp(7, &rawValue);
+          break;
+        case KEY_8:
+          mode5_bumpUp(8, &rawValue);
+          break;
+        case KEY_9:
+          mode5_bumpUp(9, &rawValue);
+          break;
+      }
+      irrecv.resume();
+      if (mode5.steps >= 9) {
+        mode5.steps = 0;
+        renderStaticWithMode();
+        return;
+      }
     }
   }
 }

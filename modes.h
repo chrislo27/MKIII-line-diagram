@@ -10,7 +10,7 @@
 #include "diagram.h"
 #include "stations.h"
 
-#define NUM_RENDER_MODES 5
+#define NUM_RENDER_MODES 6
 
 typedef struct Mode0 {
   unsigned long lastTime = 99999;
@@ -62,5 +62,17 @@ void mode4_render(LineDiagram *diagram);
 void mode4_render(LineDiagram *diagram, bool editMode);
 void mode4_renderStatic(LineDiagram *diagram);
 
+
+typedef struct Mode5 {
+  uint8_t red = 255;
+  uint8_t green = 255;
+  uint8_t blue = 255;
+  uint8_t steps = 0;
+} Mode5;
+extern Mode5 mode5;
+
+void mode5_render(LineDiagram *diagram);
+void mode5_render(LineDiagram *diagram, bool editMode, bool noSteps);
+void mode5_renderStatic(LineDiagram *diagram);
 
 #endif

@@ -193,3 +193,65 @@ void mode4_renderStatic(LineDiagram *diagram) {
   diagram->set(STN_SAPPERTON, 0);
   diagram->set(STN_VCC_CLARK, c_stn_red);
 }
+
+
+// -------------------------- Mode 5 --------------------------
+// Custom static colour.
+
+Mode5 mode5;
+
+void mode5_render(LineDiagram *diagram) {
+  mode5_render(diagram, false, false);
+}
+
+void mode5_render(LineDiagram *diagram, bool editMode, bool noSteps) {
+  diagram->strip->clear();
+  if (editMode) {
+    diagram->set(STN_RENFREW, 0xFFFFFF, false);
+    diagram->set(STN_RUPERT, 0xFF8888, true);
+    diagram->set(STN_SPERLING, 0x88FF88, true);
+    diagram->set(STN_BURQUITLAM, 0x8888FF, true);
+    diagram->set(STN_LINCOLN, 0xFFFFFF, false);
+    diagram->set(STN_LAFARGE, 0xFFFFFF, false);
+
+    uint32_t red = (uint32_t) mode5.red << 16;
+    uint32_t green = (uint32_t) mode5.green << 8;
+    uint32_t blue = (uint32_t) mode5.blue;
+    uint8_t steps = mode5.steps;
+    if (noSteps || steps >= 1) diagram->set(STN_GILMORE, red, false);
+    if (noSteps || steps >= 2) diagram->set(STN_BRENTWOOD, red, false);
+    if (noSteps || steps >= 3) diagram->set(STN_HOLDOM, red, false);
+    if (noSteps || steps >= 4) diagram->set(STN_LAKE_CITY_WAY, green, false);
+    if (noSteps || steps >= 5) diagram->set(STN_PRODUCTION, green, false);
+    if (noSteps || steps >= 6) diagram->set(STN_LOUGHEED, green, false);
+    if (noSteps || steps >= 7) diagram->set(STN_MOODY_CENTRE, blue, false);
+    if (noSteps || steps >= 8) diagram->set(STN_INLET_CENTRE, blue, false);
+    if (noSteps || steps >= 9) diagram->set(STN_COQUITLAM_CENTRAL, blue, false);
+
+    if (!noSteps) {
+      if (steps >= 1) diagram->set(STN_29TH_AVENUE, 0xFFFFFF, false);
+      if (steps >= 2) diagram->set(STN_JOYCE, 0xFFFFFF, false);
+      if (steps >= 3) diagram->set(STN_PATTERSON, 0xFFFFFF, false);
+      if (steps >= 4) diagram->set(STN_METROTOWN, 0xFFFFFF, false);
+      if (steps >= 5) diagram->set(STN_ROYAL_OAK, 0xFFFFFF, false);
+      if (steps >= 6) diagram->set(STN_EDMONDS, 0xFFFFFF, false);
+      if (steps >= 7) diagram->set(STN_22ND_STREET, 0xFFFFFF, false);
+      if (steps >= 8) diagram->set(STN_NEW_WESTMINSTER, 0xFFFFFF, false);
+      if (steps >= 9) diagram->set(STN_COLUMBIA, 0xFFFFFF, false);
+    }
+    
+    uint32_t mixed = red | green | blue;
+    diagram->set(STN_GATEWAY, mixed, false);
+    diagram->set(STN_SURREY_CENTRAL, mixed, false);
+    diagram->set(STN_KING_GEORGE, mixed, false);
+  } else {
+    uint32_t color = ((uint32_t) mode5.red << 16) | ((uint32_t) mode5.green << 8) | (mode5.blue);
+    for (int i = 0; i < diagram->strip->numPixels(); i++) {
+        diagram->set(i, color, false);
+    }
+  }
+}
+
+void mode5_renderStatic(LineDiagram *diagram) {
+  mode5_render(diagram, true, true);
+}
