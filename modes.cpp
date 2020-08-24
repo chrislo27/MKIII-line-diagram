@@ -96,12 +96,13 @@ void mode2_render(LineDiagram *diagram, unsigned long ms) {
       else if (cycle >= 16 && cycle < 24) cycle = (cycle - 16) / 2;
       else cycle = cycle - 24;
       if (cycle != mode2.lastCycle) {
+        if (cycle == 0)
+          mode2_shuffle();
         mode2.lastCycle = cycle;
-        mode2.strobe = strip->ColorHSV(65536 / 48 * random(48));
       }
       const uint16_t num = strip->numPixels();
       strip->clear();
-      const uint32_t strobe = mode2.strobe;
+      const uint32_t strobe = strip->ColorHSV(65536 / MODE2_PATTERN * mode2.pattern[cycle]);
       for (int i = 0; i < num; i++) {
         diagram->set(i, strobe);
       }
@@ -112,9 +113,26 @@ void mode2_render(LineDiagram *diagram, unsigned long ms) {
 void mode2_render(LineDiagram *diagram) {
   mode2_render(diagram, millis());
 }
-
 void mode2_renderStatic(LineDiagram *diagram) {
-  mode2_render(diagram, 500);
+  switch (mode2.submode) {
+    case 1:
+      for (int i = 0; i < NUM_STATIONS; i++) {
+        diagram->set(i, diagram->strip->ColorHSV(65535 / 13 * (i / 3)));
+      }
+      break;
+    default:
+      mode2_render(diagram, 500);
+      break;
+  }
+}
+void mode2_shuffle() {
+  // Fisher-Yates shuffle
+  for (uint8_t i = 0; i < MODE2_PATTERN; i++) {
+    uint8_t j = (uint8_t) random(0, i + 1);
+    if (j != i)
+      mode2.pattern[i] = mode2.pattern[j];
+    mode2.pattern[j] = i;
+  }
 }
 
 

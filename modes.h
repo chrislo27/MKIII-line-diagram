@@ -11,6 +11,7 @@
 #include "stations.h"
 
 #define NUM_RENDER_MODES 6
+#define MODE2_PATTERN 16
 
 typedef struct Mode0 {
   unsigned long lastTime = 99999;
@@ -31,13 +32,14 @@ void mode1_render(LineDiagram *diagram);
 
 typedef struct Mode2 {
   uint8_t submode = 0;
-  uint32_t strobe = 0;
   uint8_t lastCycle = 0;
+  uint8_t pattern[MODE2_PATTERN];
 } Mode2;
 extern Mode2 mode2;
 
 void mode2_render(LineDiagram *diagram);
 void mode2_renderStatic(LineDiagram *diagram);
+void mode2_shuffle();
 
 
 typedef struct Mode3 {

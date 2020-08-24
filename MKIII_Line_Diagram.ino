@@ -141,6 +141,9 @@ void setup() {
   strip.setBrightness(70); // Set BRIGHTNESS (max = 255)
   randomSeed(Entropy.random());
 
+  for (int i = 0; i < MODE2_PATTERN; i++)
+    mode2.pattern[i] = i;
+  mode2_shuffle();
   pathfind(&mode4.route, mode4.start, mode4.end);
 
 //  StationPath result;
