@@ -207,46 +207,44 @@ void mode5_render(LineDiagram *diagram) {
 void mode5_render(LineDiagram *diagram, bool editMode, bool noSteps) {
   diagram->strip->clear();
   if (editMode) {
-    // These stations are borders. XXrrrXgggXbbbXX
-    diagram->set(STN_RENFREW, 0xFFFFFF);
-    diagram->set(STN_RUPERT, 0xFF8888);
-    diagram->set(STN_SPERLING, 0x88FF88);
-    diagram->set(STN_BURQUITLAM, 0x8888FF);
-    diagram->set(STN_LINCOLN, 0xFFFFFF);
-    diagram->set(STN_LAFARGE, 0xFFFFFF);
-
     uint32_t red = (uint32_t) mode5.red << 16;
     uint32_t green = (uint32_t) mode5.green << 8;
     uint32_t blue = (uint32_t) mode5.blue;
     uint8_t steps = mode5.steps;
-    if (noSteps || steps >= 1) diagram->set(STN_GILMORE, red);
-    if (noSteps || steps >= 2) diagram->set(STN_BRENTWOOD, red);
-    if (noSteps || steps >= 3) diagram->set(STN_HOLDOM, red);
-    if (noSteps || steps >= 4) diagram->set(STN_LAKE_CITY_WAY, green);
-    if (noSteps || steps >= 5) diagram->set(STN_PRODUCTION, green);
-    if (noSteps || steps >= 6) diagram->set(STN_LOUGHEED, green);
-    if (noSteps || steps >= 7) diagram->set(STN_MOODY_CENTRE, blue);
-    if (noSteps || steps >= 8) diagram->set(STN_INLET_CENTRE, blue);
-    if (noSteps || steps >= 9) diagram->set(STN_COQUITLAM_CENTRAL, blue);
+    uint8_t substep = steps % 3;
+    uint8_t stepComponent = steps / 3;
+   
+    diagram->set(STN_BURQUITLAM, 0xFF0000);
+    diagram->set(STN_MOODY_CENTRE, red);
+    diagram->set(STN_INLET_CENTRE, 0x00FF00);
+    diagram->set(STN_COQUITLAM_CENTRAL, green);
+    diagram->set(STN_LINCOLN, 0x0000FF);
+    diagram->set(STN_LAFARGE, blue);
 
     if (!noSteps) {
+      // Renfrew to Lake City Way is the least sig. 7 bits of the current component
+      uint32_t compColor = stepComponent == 0 ? 0xFF0000 : (stepComponent == 1 ? 0x00FF00 : 0x0000FF);
+      uint8_t currentComp = stepComponent == 0 ? mode5.red : (stepComponent == 1 ? mode5.green : mode5.blue);
+      for (int i = 0; i < 7; i++) {
+        if ((currentComp >> i) & 1 == 1) {
+          diagram->set(STN_LAKE_CITY_WAY + i, compColor);
+        }
+      }
+      
       // Incremental indicator for how many digits have been input.
-      diagram->set(STN_VCC_CLARK, 0x88FF88); // VCC-Clark is on if you are inputting.
-      if (steps >= 1) diagram->set(STN_29TH_AVENUE, 0xFFFFFF);
-      if (steps >= 2) diagram->set(STN_JOYCE, 0xFFFFFF);
-      if (steps >= 3) diagram->set(STN_PATTERSON, 0xFFFFFF);
-      if (steps >= 4) diagram->set(STN_METROTOWN, 0xFFFFFF);
-      if (steps >= 5) diagram->set(STN_ROYAL_OAK, 0xFFFFFF);
-      if (steps >= 6) diagram->set(STN_EDMONDS, 0xFFFFFF);
-      if (steps >= 7) diagram->set(STN_22ND_STREET, 0xFFFFFF);
-      if (steps >= 8) diagram->set(STN_NEW_WESTMINSTER, 0xFFFFFF);
-      if (steps >= 9) diagram->set(STN_COLUMBIA, 0xFFFFFF);
+      diagram->set(STN_VCC_CLARK, 0x88FF88); // VCC-Clark is on if you are currently inputting.
+      // Waterfront indicates what colour component is being edited.
+      diagram->set(STN_WATERFRONT, compColor);
+      // Burrard to Stadium is the substep indicator.
+      diagram->set(STN_BURRARD, 0xFFFFFF);
+      if (substep > 0) diagram->set(STN_GRANVILLE, 0xFFFFFF);
+      if (substep > 1) diagram->set(STN_STADIUM, 0xFFFFFF);
     }
     
     uint32_t mixed = red | green | blue;
-    diagram->set(STN_GATEWAY, mixed);
-    diagram->set(STN_SURREY_CENTRAL, mixed);
-    diagram->set(STN_KING_GEORGE, mixed);
+    for (int i = STN_NANAIMO; i <= STN_KING_GEORGE; i++) {
+      diagram->set(i, mixed);
+    }
   } else {
     uint32_t color = ((uint32_t) mode5.red << 16) | ((uint32_t) mode5.green << 8) | (mode5.blue);
     for (int i = 0; i < diagram->strip->numPixels(); i++) {
@@ -256,5 +254,17 @@ void mode5_render(LineDiagram *diagram, bool editMode, bool noSteps) {
 }
 
 void mode5_renderStatic(LineDiagram *diagram) {
+  uint8_t oldRed = mode5.red;
+  uint8_t oldGreen = mode5.green;
+  uint8_t oldBlue = mode5.blue;
+  mode5.red = mode5.green = mode5.blue = 255;
+  
   mode5_render(diagram, true, true);
+  uint32_t mixed = ((uint32_t) oldRed << 16) | ((uint32_t) oldGreen << 8) | oldBlue;
+  diagram->set(STN_BRAID, mixed);
+  diagram->set(STN_SAPPERTON, mixed);
+  
+  mode5.red = oldRed;
+  mode5.green = oldGreen;
+  mode5.blue = oldBlue;
 }

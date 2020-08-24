@@ -330,6 +330,7 @@ void mode5_editMode() {
   mode5.steps = 0;
   mode5_render(&diagram, true, false);
   strip.show();
+  mode5.red = mode5.blue = mode5.green = 0;
   irrecv.resume();
   uint16_t rawValue = 0;
   while (true) {
