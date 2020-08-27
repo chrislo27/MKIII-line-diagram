@@ -23,9 +23,12 @@
 // - EQ        -> Swap the two slot positions.
 // While in Mode 5:
 // - ST/REPT   -> Begin editing/exit editing.
+// - PAUSE     -> Store current value into EEPROM. (Not editing)
 // While in Mode 5, editing mode:
 // - num key   -> Add a digit for the current value.
+// - PAUSE     -> Load saved value from EEPROM.
 
+#include <EEPROM.h>
 #include <Adafruit_NeoPixel.h>
 #include <Entropy.h>
 #include <IRremote.h>
@@ -259,6 +262,18 @@ void handleIRMode(unsigned long value) {
       }
       break;
     }
+    case KEY_PAUSE: {
+      if (Rendering.currentMode == 5) {
+        // Store current colour into EEPROM
+        EEPROM.update(0x0, mode5.red);
+        EEPROM.update(0x1, mode5.green);
+        EEPROM.update(0x2, mode5.blue);
+        animate(3);
+        delay(50);
+        renderStaticWithMode();
+      }
+      break;
+    }
   }
 }
 
@@ -349,6 +364,16 @@ void mode5_editMode() {
           renderStaticWithMode();
           return;
         }
+        case KEY_PAUSE: {
+          irrecv.resume();
+          mode5.red = EEPROM.read(0x0);
+          mode5.green = EEPROM.read(0x1);
+          mode5.blue = EEPROM.read(0x2);
+          animate(3);
+          delay(50);
+          renderStaticWithMode();
+          return;
+        }
         case KEY_0:
           mode5_bumpUp(0, &rawValue);
           break;
@@ -394,6 +419,7 @@ void mode5_editMode() {
  * 0 - Turn all pixels off
  * 1 - IR mode on / resume from sleep
  * 2 - IR mode off (reverse of 1)
+ * 3 - Quick flash green
  */
 void animate(uint8_t id) {
   switch(id) {
@@ -419,6 +445,20 @@ void animate(uint8_t id) {
         strip.show();
         delay(7);
       }
+      break;
+    case 3:
+      strip.clear();
+      for (int j = 0; j < 50; j++) {
+        uint32_t multiplier = (j >= 25 ? (50 - j) : j);
+        uint32_t c = (10 * multiplier) << 8;
+        for (int i = 0; i < NUM_STATIONS; i++) {
+          diagram.set(i, c);
+        }
+        strip.show();
+        delay(5);
+      }
+      strip.clear();
+      strip.show();
       break;
   }
 }
