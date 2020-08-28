@@ -148,6 +148,9 @@ void setup() {
     mode2.pattern[i] = i;
   mode2_shuffle();
   pathfind(&mode4.route, mode4.start, mode4.end);
+  mode5.red = EEPROM.read(0x0);
+  mode5.green = EEPROM.read(0x1);
+  mode5.blue = EEPROM.read(0x2);
 
 //  StationPath result;
 //  Serial.println(F("\nStation pathfind ordered test:"));
