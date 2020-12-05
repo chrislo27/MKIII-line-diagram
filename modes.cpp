@@ -75,6 +75,8 @@ void mode1_render(LineDiagram *diagram) {
 // Colour test.
 // Submode 1 - Cycles through the rainbow slowly for all LEDs.
 // Submode 2 - Patterned strobing ("rave").
+// Submode 3 - Red and green slow flashing pattern.
+// Submode 4 - Red and green slow alternating pattern ("xmas").
 
 Mode2 mode2;
 
@@ -101,10 +103,27 @@ void mode2_render(LineDiagram *diagram, unsigned long ms) {
         mode2.lastCycle = cycle;
       }
       const uint16_t num = strip->numPixels();
-      strip->clear();
       const uint32_t strobe = strip->ColorHSV(65536 / MODE2_PATTERN * mode2.pattern[cycle]);
       for (int i = 0; i < num; i++) {
         diagram->set(i, strobe);
+      }
+      break;
+    }
+    case 2: {
+      uint8_t cycle = (ms / 1000 % 2);
+      const uint32_t colours[2] = {0xFF0000, 0x00FF00};
+      const uint16_t num = strip->numPixels();
+      for (int i = 0; i < num; i++) {
+        diagram->set(i, colours[cycle % 2]);
+      }
+      break;
+    }
+    case 3: {
+      uint8_t cycle = (ms / 1000 % 2);
+      const uint32_t colours[2] = {0xFF0000, 0x00FF00};
+      const uint16_t num = strip->numPixels();
+      for (int i = 0; i < num; i++) {
+        diagram->set(i, colours[(i + cycle) % 2]);
       }
       break;
     }

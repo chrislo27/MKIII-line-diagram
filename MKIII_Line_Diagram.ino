@@ -241,7 +241,7 @@ void handleIRMode(unsigned long value) {
       if (Rendering.currentMode != 2) {
         Rendering.currentMode = 2;
       } else {
-        if (++mode2.submode >= 2) mode2.submode = 0;
+        if (++mode2.submode >= 4) mode2.submode = 0;
       }
       renderStaticWithMode();
       break;
